@@ -1,11 +1,11 @@
 #include<iostream>
 using namespace std;
-//int函数自己补充
 typedef int ElemType;
 typedef struct LNode {
 	ElemType data;
 	struct LNode* next;
-}LNode,*LinkList;      //->有解引用，即(*LinkList).___
+}LNode,*LinkList;     
+//->有解引用，即(*LinkList).___
 //单链表的初始化
 bool InitList(LinkList& L)
 {
@@ -25,6 +25,7 @@ bool GetElem(LinkList L, int i, ElemType& e)
 		++j;
 	}
 	if (!p || j > i) return false;
+	e = p->data;
 	return true;
 }
 //单链表的查找
@@ -33,7 +34,7 @@ LNode* LocateElem(LinkList L, ElemType e)
 {
 	LNode* p;
 	p = L->next;
-	while (p && p->data == e)
+	while (p && p->data != e)
 	{
 		p = p->next;
 	}
@@ -77,9 +78,9 @@ bool ListDelete(LinkList& L, int i)
 	return true;
 }
 //创建单链表
-void CreatList_H(LinkList& L, int n)//前插法
+void CreateList_H(LinkList& L, int n)//前插法
 {
-	LNode* L = new LNode;
+	L = new LNode;
 	L->next = NULL;
 	for (int i = 0;i < n;i++)
 	{
@@ -91,7 +92,7 @@ void CreatList_H(LinkList& L, int n)//前插法
 }
 void CreateList_R(LinkList& L, int n)//后插法
 {
-	LNode* L = new LNode;
+	L = new LNode;
 	L->next = NULL;
 	LNode* r = L;
 	for (int i = 0;i < n;i++)
@@ -102,4 +103,74 @@ void CreateList_R(LinkList& L, int n)//后插法
 		r->next = p;
 		r = p;
 	}
+}
+#include <iostream>
+using namespace std;
+
+// 这里假设你的代码已经包含在同一个文件中，或者通过头文件包含
+
+int main() {
+	LinkList L; // 定义单链表
+	InitList(L); // 初始化单链表
+
+	// 测试前插法创建单链表
+	cout << "请输入前插法创建单链表的元素个数和元素值：" << endl;
+	int n;
+	cin >> n;
+	CreateList_H(L, n);
+
+	// 测试取值
+	cout << "测试取值：请输入要获取的第 i 个元素的位置：" << endl;
+	int i;
+	cin >> i;
+	ElemType e;
+	if (GetElem(L, i, e)) {
+		cout << "第 " << i << " 个元素的值为：" << e << endl;
+	}
+	else {
+		cout << "获取第 " << i << " 个元素失败！" << endl;
+	}
+
+	// 测试插入
+	cout << "测试插入：请输入插入位置和插入值：" << endl;
+	int pos, value;
+	cin >> pos >> value;
+	if (ListInsert(L, pos, value)) {
+		cout << "插入成功！" << endl;
+	}
+	else {
+		cout << "插入失败！" << endl;
+	}
+
+	// 测试删除
+	cout << "测试删除：请输入要删除的第 i 个元素的位置：" << endl;
+	cin >> i;
+	if (ListDelete(L, i)) {
+		cout << "删除成功！" << endl;
+	}
+	else {
+		cout << "删除失败！" << endl;
+	}
+
+	// 测试查找
+	cout << "测试查找：请输入要查找的元素值：" << endl;
+	cin >> value;
+	LNode* found = LocateElem(L, value);
+	if (found) {
+		cout << "找到元素 " << value << "，地址为：" << found << endl;
+	}
+	else {
+		cout << "未找到元素 " << value << "！" << endl;
+	}
+
+	// 打印链表
+	cout << "当前链表中的元素为：" << endl;
+	LNode* p = L->next;
+	while (p) {
+		cout << p->data << " ";
+		p = p->next;
+	}
+	cout << endl;
+
+	return 0;
 }
