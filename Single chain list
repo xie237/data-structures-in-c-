@@ -1,0 +1,105 @@
+#include<iostream>
+using namespace std;
+//int函数自己补充
+typedef int ElemType;
+typedef struct LNode {
+	ElemType data;
+	struct LNode* next;
+}LNode,*LinkList;      //->有解引用，即(*LinkList).___
+//单链表的初始化
+bool InitList(LinkList& L)
+{
+	L = new LNode;
+	L->next = NULL;
+	return true;
+}
+//单链表的取值
+bool GetElem(LinkList L, int i, ElemType& e)
+{
+	LNode* p = L->next;//指向首元结点
+	int j = 1;
+	while (p && j < i)
+		//首先保证p指向的节点不为空即为存在，再确保j指向i
+	{
+		p = p->next;
+		++j;
+	}
+	if (!p || j > i) return false;
+	return true;
+}
+//单链表的查找
+LNode* LocateElem(LinkList L, ElemType e)
+//此函数返回的是指针类型数据，即查找数据所在结构体LNode所在的地址
+{
+	LNode* p;
+	p = L->next;
+	while (p && p->data == e)
+	{
+		p = p->next;
+	}
+	return p;//NULL即为不存在，符合常规语法，方便调用
+}
+//单链表的插入
+bool ListInsert(LinkList& L, int i, ElemType e)
+{
+	LNode* p;
+	p = L;
+	int j = 0;//可以直接插在头节点后，所以这样
+	while (p && (j < i - 1))
+		//i-1目的是让p直接指向要插入的第i个节点，如果为i，就会错过
+	{
+		p = p->next;++j;
+	}
+	if (!p || j > i - 1) return false;
+	LNode* s = new LNode;
+	s->data = e;
+	s->next = p->next;
+	p->next = s;
+	return true;
+}
+//单链表的删除
+bool ListDelete(LinkList& L, int i)
+{
+	LNode* p;
+	p = L;
+	int j = 0;
+	//由于删除和插入一样需提前确认该元素地址，即为上一元素的next域
+	while ((p->next) && (j < i - 1))
+		//p->next由于删除需提前确认下一元素是否有，而不是空，而插入不同，因为可以插入在最后一个元素后
+	{
+		p = p->next;++j;
+	}
+	if (!(p->next) || (j > i - 1)) return false;
+	LNode* q;
+	q = p->next;
+	p->next = q->next;
+	delete q;
+	return true;
+}
+//创建单链表
+void CreatList_H(LinkList& L, int n)//前插法
+{
+	LNode* L = new LNode;
+	L->next = NULL;
+	for (int i = 0;i < n;i++)
+	{
+		LNode* p = new LNode;
+		cin >> p->data;
+		p->next = L->next;
+		L->next = p;
+	}
+}
+void CreateList_R(LinkList& L, int n)//后插法
+{
+	LNode* L = new LNode;
+	L->next = NULL;
+	LNode* r = L;
+	for (int i = 0;i < n;i++)
+	{
+		LNode* p = new LNode;
+		cin >> p->data;
+		p->next = NULL;
+		r->next = p;
+		r = p;
+	}
+}
