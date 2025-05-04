@@ -4,8 +4,7 @@ typedef int ElemType;
 typedef struct LNode {
 	ElemType data;
 	struct LNode* next;
-}LNode,*LinkList;     
-//->有解引用，即(*LinkList).___
+}LNode,*LinkList;      //->有解引用，即(*LinkList).___
 //单链表的初始化
 bool InitList(LinkList& L)
 {
@@ -174,3 +173,49 @@ int main() {
 
 	return 0;
 }
+//循环链表的实现，即为将链表最后一个元素的指针域指向头节点
+//将原本while判定条件p!=NULL||p->next!=NULL改为p!=L||p->next!=L即可
+//在循环链表中设立尾指针不设立头指针在一些情况下可简化操作for example ：p=B->next->next;B->next=A->next;A->next=p;
+
+//双向链表的实现
+typedef struct DuLNode
+{
+	ElemType data;
+	struct DuLNode* prior;
+	struct DuLNode* next;
+}DuLNode, * DuLinkList;
+// 双向链表的取值函数
+DuLNode* GetElem_DuL(DuLinkList L, int i) {
+	if (i < 0) return nullptr; // 如果索引无效，返回空指针
+	DuLNode* p = L->next; // 指向首元结点
+	int j = 1; // 计数器，从第一个节点开始
+	while (p && j < i) {
+		p = p->next; // 移动到下一个节点
+		++j;
+	}
+	if (!p || j > i) return nullptr; // 如果节点不存在或索引超出范围，返回空指针
+	return p; // 返回第 i 个节点的指针
+}
+
+//双向链表的插入
+bool ListInsert_DuL(DuLinkList& L, int i, ElemType e)
+{
+	if (!(p = GetElem_DuL(L, i))) return false;//p指向需要插入位置的后一个结点，即原第i个结点
+	DuLNode* s = new DuLNode;
+	s->data = e;//第一步将数据写入data
+	s->prior = p->prior;//第二步将需要插入的s是的直接前驱指向p的直接前驱
+	p->prior->next = s;//第三步将插入位置前一个结点的后继指向s
+	s->next = p;//第四步将插入位置后一个结点的前驱指向a的后继
+	p->prior = s;//第五步将s的后继指向后一个结点
+	return true;
+}
+//双向链表的删除
+bool ListDelete_DuL(DuLinkList& L, int i)
+{
+	if (!(p = GetElem_DuL(L, i))) return false;
+	p->prior->next = p->next;
+	p->next->prior = p->prior;
+	delete p;
+	return true;
+}
+
