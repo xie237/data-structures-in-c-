@@ -200,7 +200,9 @@ DuLNode* GetElem_DuL(DuLinkList L, int i) {
 //双向链表的插入
 bool ListInsert_DuL(DuLinkList& L, int i, ElemType e)
 {
-	if (!(p = GetElem_DuL(L, i))) return false;//p指向需要插入位置的后一个结点，即原第i个结点
+	DuLNode* p = GetElem_DuL(L, i);
+	if (!p) return false;
+	//p指向需要插入位置的后一个结点，即原第i个结点
 	DuLNode* s = new DuLNode;
 	s->data = e;//第一步将数据写入data
 	s->prior = p->prior;//第二步将需要插入的s是的直接前驱指向p的直接前驱
@@ -212,10 +214,10 @@ bool ListInsert_DuL(DuLinkList& L, int i, ElemType e)
 //双向链表的删除
 bool ListDelete_DuL(DuLinkList& L, int i)
 {
-	if (!(p = GetElem_DuL(L, i))) return false;
+	DuLNode* p = GetElem_DuL(L, i);
+	if (!p) return false;
 	p->prior->next = p->next;
 	p->next->prior = p->prior;
 	delete p;
 	return true;
 }
-
