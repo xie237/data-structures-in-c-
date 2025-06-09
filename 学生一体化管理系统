@@ -1,0 +1,199 @@
+#include<iostream>
+#include<cstdlib>
+#include<windows.h>
+#include<string>
+using namespace std;
+
+//此处为全局变量区域，不可随意变动!!!
+int width;//控制台宽度
+string name;
+int studatai = 0;
+
+int widthlong() //windows系统控制台列数获取以便居中
+{
+	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hStdout == INVALID_HANDLE_VALUE) {
+		printf("Failed to get stdout handle\n");
+		return 1;
+	}
+
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	if (!GetConsoleScreenBufferInfo(hStdout, &csbi)) {
+		printf("Failed to get console info\n");
+		return 1;
+	}
+
+	int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+	width = consoleWidth;
+	return 0;
+}
+
+typedef struct book//书籍结构体
+{
+	char bookISNnumber[13];
+	string title;
+	string writer;
+	string pricing;
+	string publishinghouse;
+	struct book *next;
+}book;
+typedef struct //成绩结构体
+{
+	int math;
+	int english;
+	int datacontrol;
+}grade;
+typedef struct student//学生基本信息结构体
+{
+	string name;
+	int age;
+	string clas;
+	string profession;
+	char phonenumber[11];
+	char account[10];
+	char password[18];
+	book book[10];
+	grade grade[3];
+}stu;
+stu studentdata[100];
+
+void mid(const char* text, int width)//为除windows其它系统定制的控制台居中设置函数
+{
+	size_t textlength = strlen(text);
+	size_t blank = (width - textlength) / 2;
+	for (int i = 0;i < blank;i++)
+		cout << " ";
+	cout << text << endl;
+}
+
+void welcomelayout(string name)//欢迎界面
+{
+	cout << "welcome " << name << endl;
+	cout << "Enter any character to continue";
+	if (cin.get())  system("cls");
+}
+
+void denglulayout()//登陆界面
+{
+
+}
+
+void zhucepasswordon()//注册账号后密码的输入以及信息的完整性填写
+{
+	mid("请输入你的账号密码(密码只能由9-18位字母、数字或部分符号组成)", width);
+	string password;
+	int i;
+	cin.ignore();
+	for (i = 0;;i++)
+	{
+		if (cin.get() == '\n') break;
+		cin >> password;
+	}
+	if (password.size()<9||password.size()>18||password.size()==0) {
+		cout << "你未成功设置账号密码,错误代码:-1，请重新输入,本页面将清空，重新进入注册账号密码设置环节,输入任意字符继续";
+		if (cin.get())  system("cls");
+		zhucepasswordon();
+		return;
+	}
+	else {
+		for (int j = 0;j != i;j++)
+			studentdata[studatai].password[j] = password[j];
+		cout << "恭喜你已成功设置你的账号密码，请输入任意字符以返回登录";
+	}
+}
+void zhucelayout()//注册界面及注册账号代码输入
+{
+	mid("欢迎注册学生管理系统账号", width);
+	mid("输入你需要注册的账号名称(账号只能由2-10位字母和数字组成)", width);
+	char account[10];
+	int i;
+	cin.ignore();
+	for (i = 0;;i++)
+	{
+		if (cin.get() == '\n') break;
+		cin >> account[i];
+	}
+	if (i == 0) {
+		cout << "你未成功设置账号代码,错误代码:-1，请重新输入,本页面将清空，重新进入注册账号代码设置环节,输入任意字符继续";
+		if(cin.get())  system("cls");
+		zhucelayout();
+		return;
+	}
+	else {
+		for (int j = 0;j != i;j++)
+			studentdata[studatai].account[j] = account[j];
+		cout << "恭喜你已成功设置你的账号代码，即将进入设置密码阶段,输入任意字符继续";
+		if (cin.get()) zhucepasswordon();
+	}
+}
+
+void rollincontrol(int num)
+{
+	switch (num)
+	{
+	case 1:denglulayout();break;
+	case 2:zhucelayout();break;
+	case 0: {
+		cout << "感谢你的使用,输入任意字符退出";
+		if (cin.get())  exit(0);
+	}break;
+	}
+}//初始界面控制函数
+void rollinlayout()//获取电脑信息后的初始界面
+{
+	cout << "你的电脑操作系统为？1-windows 2-其它(如macos，linux等)" << endl;
+	int systemnum;
+	cin >> systemnum;
+	int errornum;
+	switch (systemnum)
+	{
+	case 1:
+	{
+		errornum = widthlong();
+		if (errornum == 0) break;
+	}
+	case 2:
+	{
+		cout << "你的控制台宽度?(将影响整体视觉，请认真填写)" << endl;
+		cin >> width;
+		cout << "以上内容将被清屏，输入任意字符以继续";
+		cout << endl;
+		if (cin.get())  system("cls");
+	};break;
+	default:
+	{
+		cout << "你的控制台宽度?(将影响整体视觉，请认真填写)" << endl;
+		cin >> width;
+		cout << "以上内容将被清屏，输入任意字符以继续";
+		cout << endl;
+		if (cin.get())  system("cls");
+	};break;//default防止用户输入错误导致程序错误
+	}
+	system("cls");
+	mid("欢迎使用学生管理系统", width);
+	mid("账号只能由2-10位字母和数字组成", width);
+	mid("密码只能由9-18位字母、数字或部分符号组成", width);
+	mid("欢迎使用学生管理系统，请先登录", width);
+	mid("--------------------------------------", width);
+	cout << endl;
+	mid("菜单", width);
+	mid("1-登录", width);
+	mid("2-注册", width);
+	mid("0-退出", width);
+	cout << endl;
+	mid("--------------------------------------", width);
+	mid("输入数字以继续", width);
+	int controlnum;
+	cin >> controlnum;
+	rollincontrol(controlnum);
+}
+
+int main()
+{
+	cout << "welcome!" << endl;
+	cout << "your name" << endl;
+	getline(cin, name);
+	welcomelayout(name);
+	rollinlayout();
+	return 0;
+}
