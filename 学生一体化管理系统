@@ -2,12 +2,14 @@
 #include<cstdlib>
 #include<windows.h>
 #include<string>
+#include<cstring>
 using namespace std;
 
 //此处为全局变量区域，不可随意变动!!!
 int width;//控制台宽度
 string name;
 int studatai = 0;
+bool finalnum = false;//判断是否以账号登录，开启对应借书权限（排除以安全模式进入系统导致系统错误借书）
 
 int widthlong() //windows系统控制台列数获取以便居中
 {
@@ -35,7 +37,7 @@ typedef struct book//书籍结构体
 	string writer;
 	string pricing;
 	string publishinghouse;
-	struct book *next;
+	struct book* next;
 }book;
 typedef struct //成绩结构体
 {
@@ -54,10 +56,11 @@ typedef struct student//学生基本信息结构体
 	char password[18];
 	book book[10];
 	grade grade[3];
+	bool exist = false;
 }stu;
 stu studentdata[100];
 
-void mid(const char* text, int width)//为除windows其它系统定制的控制台居中设置函数
+void mid(const char* text, int width)//控制台居中设置函数
 {
 	size_t textlength = strlen(text);
 	size_t blank = (width - textlength) / 2;
@@ -66,73 +69,68 @@ void mid(const char* text, int width)//为除windows其它系统定制的控制�
 	cout << text << endl;
 }
 
+//函数声明区
+bool searchid(const char* id);
+bool searchaccount(const char* account);
+bool passwordcompare(const char* account, const char* password);
+void welcomelayout(string name);
+void rollincontrol(int num);
+void rollinlayout();
+void denglulayout();
+void rollinlayoutalready();
+void zhucepasswordon();
+void zhucelayout();
+void mainlayout();
+
+//与已填写数据比对函数
+bool searchid(const char* id)//账号id存在性
+{
+	for (int i = 0; i < 100; i++) {
+		if (studentdata[i].exist && strcmp(studentdata[i].account, id) == 0) {
+			return true; // 找到重复id
+		}
+	}
+	return false; // 没有重复id
+}
+bool searchaccount(const char* account)//账号存在性
+{
+	for (int i = 0; i < 100; i++) {
+		if (studentdata[i].exist && strcmp(studentdata[i].account, account) == 0) {
+			return true; // 找到重复id
+		}
+	}
+	return false; // 没有重复id
+}
+bool passwordcompare(const char* account, const char* password)//账号密码正确性
+{
+	for (int i = 0; i < 100; i++) {
+		if (studentdata[i].exist && strcmp(studentdata[i].account, account) == 0) {
+			// 找到账号后再比对密码
+			if (strcmp(studentdata[i].password, password) == 0) {
+				return true; // 密码正确
+			}
+			else {
+				return false; // 密码错误
+			}
+		}
+	}
+	return false; // 没有找到账号
+}
+
+//欢迎界面以及电脑配置询问及其登陆界面
 void welcomelayout(string name)//欢迎界面
 {
 	cout << "welcome " << name << endl;
 	cout << "Enter any character to continue";
 	if (cin.get())  system("cls");
 }
-
-void denglulayout()//登陆界面
-{
-
-}
-
-void zhucepasswordon()//注册账号后密码的输入以及信息的完整性填写
-{
-	mid("请输入你的账号密码(密码只能由9-18位字母、数字或部分符号组成)", width);
-	string password;
-	int i;
-	cin.ignore();
-	for (i = 0;;i++)
-	{
-		if (cin.get() == '\n') break;
-		cin >> password;
-	}
-	if (password.size()<9||password.size()>18||password.size()==0) {
-		cout << "你未成功设置账号密码,错误代码:-1，请重新输入,本页面将清空，重新进入注册账号密码设置环节,输入任意字符继续";
-		if (cin.get())  system("cls");
-		zhucepasswordon();
-		return;
-	}
-	else {
-		for (int j = 0;j != i;j++)
-			studentdata[studatai].password[j] = password[j];
-		cout << "恭喜你已成功设置你的账号密码，请输入任意字符以返回登录";
-	}
-}
-void zhucelayout()//注册界面及注册账号代码输入
-{
-	mid("欢迎注册学生管理系统账号", width);
-	mid("输入你需要注册的账号名称(账号只能由2-10位字母和数字组成)", width);
-	char account[10];
-	int i;
-	cin.ignore();
-	for (i = 0;;i++)
-	{
-		if (cin.get() == '\n') break;
-		cin >> account[i];
-	}
-	if (i == 0) {
-		cout << "你未成功设置账号代码,错误代码:-1，请重新输入,本页面将清空，重新进入注册账号代码设置环节,输入任意字符继续";
-		if(cin.get())  system("cls");
-		zhucelayout();
-		return;
-	}
-	else {
-		for (int j = 0;j != i;j++)
-			studentdata[studatai].account[j] = account[j];
-		cout << "恭喜你已成功设置你的账号代码，即将进入设置密码阶段,输入任意字符继续";
-		if (cin.get()) zhucepasswordon();
-	}
-}
-
 void rollincontrol(int num)
 {
 	switch (num)
 	{
 	case 1:denglulayout();break;
 	case 2:zhucelayout();break;
+	case 3:mainlayout();break;
 	case 0: {
 		cout << "感谢你的使用,输入任意字符退出";
 		if (cin.get())  exit(0);
@@ -171,7 +169,79 @@ void rollinlayout()//获取电脑信息后的初始界面
 	}
 	system("cls");
 	mid("欢迎使用学生管理系统", width);
-	mid("账号只能由2-10位字母和数字组成", width);
+	mid("账号只能由1-10位字母和数字组成", width);
+	mid("密码只能由9-18位字母、数字或部分符号组成", width);
+	mid("欢迎使用学生管理系统，请先登录", width);
+	mid("--------------------------------------", width);
+	cout << endl;
+	mid("菜单", width);
+	mid("1-登录", width);
+	mid("2-注册", width);
+	mid("3-安全模式查询", width);
+	mid("0-退出", width);
+	cout << endl;
+	mid("--------------------------------------", width);
+	mid("输入数字以继续", width);
+	int controlnum;
+	cin >> controlnum;
+	rollincontrol(controlnum);
+}
+
+//登录
+void denglulayout()//登陆界面
+{
+	system("cls");
+	mid("欢迎登录学生管理系统", width);
+	mid("请分别输入你的账号密码", width);
+	mid("--------------------------------------", width);
+	cout << endl;
+	char account[11] = { 0 };  // 初始化清零
+	char password[19] = { 0 }; // 初始化清零
+	cin.ignore();
+	// 账号输入部分
+	while (true) {
+		mid("账号:", width);
+		cin.getline(account, 11);  // 直接读取到account，避免二次拷贝
+
+		if (!searchaccount(account)) {
+			mid("你还未注册账号，请先注册账号，按任意键返回主菜单", width);
+			cout << endl;
+			mid("--------------------------------------", width);
+			cin.get();
+			system("cls");
+			rollinlayout();
+			return;
+		}
+		break;
+	}
+	// 密码输入部分
+	int attempts = 3;
+	while (attempts-- > 0) {
+		mid("密码:", width);
+		cin.getline(password, 19);
+
+		if (passwordcompare(account, password)) {
+			mid("登录成功，按任意键进入主界面", width);
+			cout << endl;
+			mid("--------------------------------------", width);
+			cin.get();
+			system("cls");
+			mainlayout();
+			return;
+		}
+		cout << "密码错误！剩余尝试次数: " << to_string(attempts);
+	}
+	mid("登录失败次数过多，返回主菜单", width);
+	cin.get();
+	system("cls");
+	rollinlayout();
+}
+
+//欢迎界面后的主菜单界面
+void rollinlayoutalready()
+{
+	mid("欢迎使用学生管理系统", width);
+	mid("账号只能由1-10位字母和数字组成", width);
 	mid("密码只能由9-18位字母、数字或部分符号组成", width);
 	mid("欢迎使用学生管理系统，请先登录", width);
 	mid("--------------------------------------", width);
@@ -186,6 +256,101 @@ void rollinlayout()//获取电脑信息后的初始界面
 	int controlnum;
 	cin >> controlnum;
 	rollincontrol(controlnum);
+}
+
+//注册
+void zhucepasswordon()//注册账号后密码的输入以及信息的完整性填写
+{
+	char password[19];
+	int i;
+	bool isvalid = false;
+	while (!isvalid)
+	{
+		mid("请输入你的账号密码(密码只能由9-18位字母、数字或部分符号组成，如果输入大于18位将自动截取前18位)", width);
+		char password_[100];
+		cin.getline(password_, 100);
+		for (i = 0;i < 18;i++)
+		{
+			if (password_[i] != '\n') password[i] = password_[i];
+			else break;
+		}
+		if (i >= 10) password[18] = '\0';
+		else password[i] = '\0';
+		if (strlen(password) < 9 || strlen(password) > 18 || strlen(password) == 0) {
+			cout << "你未成功设置账号密码,错误代码:-1，请重新输入,本页面将清空，重新进入注册账号密码设置环节,输入任意字符继续";
+			if (cin.get())  system("cls");
+			continue;
+		}
+		else {
+			for (int j = 0;j != i;j++)
+				studentdata[studatai].password[j] = password[j];
+			studentdata[studatai].exist = true;
+			cout << "恭喜你已成功设置你的账号密码，密码为" << studentdata[studatai].password << "请牢记你的密码，请输入任意字符以返回登录";
+			if (studentdata[studatai].exist) studatai++;
+			if (cin.get()) system("cls");
+			isvalid = true;
+		}
+	}
+	rollinlayoutalready();
+}
+void zhucelayout()//注册界面及注册账号代码输入
+{
+	char account[11];
+	int i;
+	bool isvalid = false;
+	cin.ignore();
+	while (!isvalid)
+	{
+		mid("欢迎注册学生管理系统账号", width);
+		mid("输入你需要注册的账号名称(账号只能由1-10位字母和数字组成,如果输入大于10位将自动截取前10位)", width);
+		char account_[100];
+		cin.getline(account_, 100);
+		for (i = 0;i < 10;i++)
+		{
+			if (account_[i] != '\n') account[i] = account_[i];
+			else break;
+		}
+		if (i >= 10) account[10] = '\0';
+		else account[i] = '\0';
+		if (i == 0) {
+			cout << "你未成功设置账号代码,错误代码:-1，请重新输入,本页面将清空，重新进入注册账号代码设置环节,输入任意字符继续";
+			if (cin.get())  system("cls");
+			continue;
+		}
+		else if (searchid(account))
+		{
+			cout << "你未成功设置账号代码,错误代码:-2，该用户名id已存在，请重新输入,本页面将清空，重新进入注册账号代码设置环节,输入任意字符继续";
+			if (cin.get())  system("cls");
+			continue;
+		}
+		else {
+			for (int j = 0;j != i;j++)
+			{
+				studentdata[studatai].account[j] = account[j];
+			}
+			cout << "恭喜你已成功设置你的账号代码，代码为" << studentdata[studatai].account << "即将进入设置密码阶段,输入任意字符继续";
+			if (cin.get()) { isvalid = true; }
+		}
+	}
+	zhucepasswordon();
+}
+
+//主界面
+void mainlayout()
+{
+	system("cls");
+	mid("欢迎进入学生管理系统主界面", width);
+	mid("主菜单", width);
+	mid("--------------------------------------", width);
+	cout << endl;
+	mid("1-图书借阅", width);
+	mid("2-借阅图书归还", width);
+	mid("3-图书馆图书借阅剩余", width);
+	mid("4-期末考试成绩提交", width);
+	mid("5-退出登录", width);
+	cout << endl;
+	mid("--------------------------------------", width);
+	mid("请爱护图书馆书籍，借阅时注意自己的账号安全，解释权归系统管理者所有", width);
 }
 
 int main()
