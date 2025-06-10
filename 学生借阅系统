@@ -10,6 +10,7 @@ int width;//控制台宽度
 string name;
 int studatai = 0;
 bool finalnum = false;//判断是否以账号登录，开启对应借书权限（排除以安全模式进入系统导致系统错误借书）
+bool ff = true;//判断是否为第一次打开系统，第一次需要获取控制台宽度
 
 int widthlong() //windows系统控制台列数获取以便居中
 {
@@ -51,12 +52,16 @@ typedef struct student//学生基本信息结构体
 	int age;
 	string clas;
 	string profession;
-	char phonenumber[11];
+	char phonenumber[12];
 	char account[10];
 	char password[18];
 	book book[10];
 	grade grade[3];
 	bool exist = false;
+	
+	student() {
+		phonenumber[0] = 0;
+	  }
 }stu;
 stu studentdata[100];
 
@@ -81,6 +86,10 @@ void rollinlayoutalready();
 void zhucepasswordon();
 void zhucelayout();
 void mainlayout();
+int index(const char* account);
+void firstdenglu(const char* account,const int i);
+void findpassword(const char* account, const int i);
+void mainlayoutcontrol(int num);
 
 //与已填写数据比对函数
 bool searchid(const char* id)//账号id存在性
@@ -139,35 +148,39 @@ void rollincontrol(int num)
 }//初始界面控制函数
 void rollinlayout()//获取电脑信息后的初始界面
 {
-	cout << "你的电脑操作系统为？1-windows 2-其它(如macos，linux等)" << endl;
-	int systemnum;
-	cin >> systemnum;
-	int errornum;
-	switch (systemnum)
+	if (ff)
 	{
-	case 1:
-	{
-		errornum = widthlong();
-		if (errornum == 0) break;
+		cout << "你的电脑操作系统为？1-windows 2-其它(如macos，linux等)" << endl;
+		int systemnum;
+		cin >> systemnum;
+		int errornum;
+		switch (systemnum)
+		{
+		case 1:
+		{
+			errornum = widthlong();
+			if (errornum == 0) break;
+		}
+		case 2:
+		{
+			cout << "你的控制台宽度?(将影响整体视觉，请认真填写)" << endl;
+			cin >> width;
+			cout << "以上内容将被清屏，输入任意字符以继续";
+			cout << endl;
+			if (cin.get())  system("cls");
+		};break;
+		default:
+		{
+			cout << "你的控制台宽度?(将影响整体视觉，请认真填写)" << endl;
+			cin >> width;
+			cout << "以上内容将被清屏，输入任意字符以继续";
+			cout << endl;
+			if (cin.get())  system("cls");
+		};break;//default防止用户输入错误导致程序错误
+		}
+		system("cls");
+		ff = false;
 	}
-	case 2:
-	{
-		cout << "你的控制台宽度?(将影响整体视觉，请认真填写)" << endl;
-		cin >> width;
-		cout << "以上内容将被清屏，输入任意字符以继续";
-		cout << endl;
-		if (cin.get())  system("cls");
-	};break;
-	default:
-	{
-		cout << "你的控制台宽度?(将影响整体视觉，请认真填写)" << endl;
-		cin >> width;
-		cout << "以上内容将被清屏，输入任意字符以继续";
-		cout << endl;
-		if (cin.get())  system("cls");
-	};break;//default防止用户输入错误导致程序错误
-	}
-	system("cls");
 	mid("欢迎使用学生管理系统", width);
 	mid("账号只能由1-10位字母和数字组成", width);
 	mid("密码只能由9-18位字母、数字或部分符号组成", width);
@@ -216,7 +229,9 @@ void denglulayout()//登陆界面
 	}
 	// 密码输入部分
 	int attempts = 3;
-	while (attempts-- > 0) {
+	int i;
+	while (attempts-- > 0) 
+	{
 		mid("密码:", width);
 		cin.getline(password, 19);
 
@@ -226,15 +241,97 @@ void denglulayout()//登陆界面
 			mid("--------------------------------------", width);
 			cin.get();
 			system("cls");
-			mainlayout();
+			i = index(account);
+			if (studentdata[i].phonenumber[0] == '\0')  firstdenglu(account,i);
+			else mainlayout();
 			return;
 		}
 		cout << "密码错误！剩余尝试次数: " << to_string(attempts);
 	}
-	mid("登录失败次数过多，返回主菜单", width);
-	cin.get();
-	system("cls");
-	rollinlayout();
+	mid("登录失败次数过多，是否找回密码？", width);    mid("1-是", width);    mid("0-否", width);
+	int j;  cin >> j;
+	if (j) findpassword(account, index(account));
+	else {
+		mid("按任意键返回主菜单", width);
+		cin.get();
+		system("cls");
+		rollinlayout();
+	}
+}
+
+int index(const char* id)
+{
+	for (int i = 0; i < 100; i++) {
+		if (studentdata[i].exist && strcmp(studentdata[i].account, id) == 0) {
+			return i;
+		}
+	}
+}
+void firstdenglu(const char* account,const int i)
+{
+	mid("由于你是第一次登录，请输入你的电话号码以便于找回你的密码，11位电话号码（不包括+86）", width);
+	int j;
+	for (j = 0;j < 11;j++)
+	{
+		cin >> studentdata[i].phonenumber[j];
+	}
+	studentdata[i].phonenumber[j] = '\0';
+	mid("电话号码信息已补全，按任意键跳转主界面", width);
+	cin.get();    system("cls");
+	mainlayout();
+}
+void findpassword(const char* account, const int i)
+{
+	mid("请输入你账号绑定的手机号", width);
+	char phonenumber[12];
+	cin.getline(phonenumber, 12);
+	if (studentdata[i].phonenumber[0] == '\0')
+	{
+		mid("由于你的账号未绑定手机号，无法找回，你可以选择重新注册账号，按任意键返回主菜单", width);
+		cin.get();
+		system("cls");
+		rollinlayout();
+	}
+	else if (strcmp(studentdata[i].phonenumber, phonenumber) == 0)
+	{
+		mid("手机号验证成功，请输入您的新密码", width);
+		char password[19];
+		bool isvalid = false;
+		while (!isvalid)
+		{
+			mid("请输入你的账号密码(密码只能由9-18位字母、数字或部分符号组成，如果输入大于18位将自动截取前18位)", width);
+			char password_[100];
+			cin.getline(password_, 100);
+			int jj;
+			for (jj = 0;jj < 18;jj++)
+			{
+				if (password_[jj] != '\n') password[jj] = password_[jj];
+				else break;
+			}
+			if (jj >= 10) password[18] = '\0';
+			else password[jj] = '\0';
+			if (strlen(password) < 9 || strlen(password) > 18 || strlen(password) == 0) {
+				cout << "你未成功设置账号密码,错误代码:-1，请重新输入,本页面将清空，重新进入注册账号密码设置环节,输入任意字符继续";
+				if (cin.get())  system("cls");
+				continue;
+			}
+			else {
+				for (int j = 0;j != jj;j++)
+					studentdata[i].password[j] = password[j];
+				cout << "恭喜你已成功设置你的账号密码，密码为" << studentdata[i].password << "请牢记你的密码，请输入任意字符以返回登录";
+				if (cin.get()) system("cls");
+				isvalid = true;
+			}
+		}
+		rollinlayoutalready();
+	}
+	else
+	{
+		mid("手机号失败，错误代码:-3，输入号码不匹配，按任意键重新输入", width);
+		cin.get();
+		system("cls");
+		findpassword(account, i);
+	}
 }
 
 //欢迎界面后的主菜单界面
@@ -348,9 +445,26 @@ void mainlayout()
 	mid("3-图书馆图书借阅剩余", width);
 	mid("4-期末考试成绩提交", width);
 	mid("5-退出登录", width);
+	mid("6-补充个人信息", width);
 	cout << endl;
 	mid("--------------------------------------", width);
 	mid("请爱护图书馆书籍，借阅时注意自己的账号安全，解释权归系统管理者所有", width);
+	mid("输入数字以继续", width);
+	int controlnum;
+	cin >> controlnum;
+	mainlayoutcontrol(controlnum);
+}
+void mainlayoutcontrol(int num)
+{
+	switch (num)
+	{
+	case 1:break;
+	case 2:break;
+	case 3:break;
+	case 4:break;
+	case 5: { system("cls");rollinlayout(); }break;
+	case 6:break;
+	}
 }
 
 int main()
