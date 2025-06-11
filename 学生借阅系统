@@ -160,6 +160,10 @@ void information(const char* account, const int i)
 		cin >> studentdata[i].name;
 		cout << endl;
 	}
+ else
+{
+  studentdata[i].name=name;
+}
 		mid("你的年龄", width);
 		cin >> studentdata[i].age;
 		cout << endl;
