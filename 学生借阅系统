@@ -3,12 +3,14 @@
 #include<windows.h>
 #include<string>
 #include<cstring>
+#include<iomanip>
 using namespace std;
 
 //此处为全局变量区域，不可随意变动!!!
 int width;//控制台宽度
 string name;
-int studatai = 0;
+int studatai = 0;//注册学生信息序号
+int booknum = 0;//添加新书序号
 bool finalnum = false;//判断是否以账号登录，开启对应借书权限（排除以安全模式进入系统导致系统错误借书）
 bool ff = true;//判断是否为第一次打开系统，第一次需要获取控制台宽度
 
@@ -38,8 +40,13 @@ typedef struct book//书籍结构体
 	string writer;
 	string pricing;
 	string publishinghouse;
-	struct book* next;
+	bool condiction = false;
 }book;
+book bookdata[100];
+typedef struct bbook{
+	int bookindex;
+	struct bbook *next;
+}bookstu,*bookstulink;
 typedef struct //成绩结构体
 {
 	int math;
@@ -55,7 +62,8 @@ typedef struct student//学生基本信息结构体
 	char phonenumber[12];
 	char account[10];
 	char password[18];
-	book book[10];
+	bookstulink bookstu;
+	int bookstulinkk = 0;
 	grade grade[3];
 	bool exist = false;
 	
@@ -74,6 +82,30 @@ void mid(const char* text, int width)//控制台居中设置函数
 	cout << text << endl;
 }
 
+//图书馆剩余书籍信息
+void anybook()
+{
+	for (int i = 0;i < booknum;i++)
+	{
+		string tf;
+		if (bookdata[booknum].condiction == false) tf = "未借阅";
+		else tf = "已借阅";
+		cout << endl << left << setw(25) << bookdata[booknum].title << setw(20) << bookdata[booknum].writer
+			<< setw(10) << bookdata[booknum].pricing << setw(15) << bookdata[booknum].bookISNnumber <<
+			setw(20) << bookdata[booknum].publishinghouse << setw(4) << tf << right << endl;
+	}
+}
+//成绩提交模块
+void gradesubmit(const char *account, const int i)
+{
+
+}
+//个人信息补全模块
+void information(const char* account, const int i)
+{
+
+}
+
 //函数声明区
 bool searchid(const char* id);
 bool searchaccount(const char* account);
@@ -85,11 +117,28 @@ void denglulayout();
 void rollinlayoutalready();
 void zhucepasswordon();
 void zhucelayout();
-void mainlayout();
+void mainlayout(const char* account, const int i);
 int index(const char* account);
 void firstdenglu(const char* account,const int i);
 void findpassword(const char* account, const int i);
-void mainlayoutcontrol(int num);
+void mainlayoutcontrol(int num, const char* account, const int i);
+void librarygo(const char* account, const int i);
+void libraryout(const char* account, const int i);
+void mainlayout();
+void mainlayoutcontrol(const int num);
+
+//通过isn查找图书
+int searchbookbyisn(const char* isn)
+{
+	for (int i = 0;i < 100;i++)
+	{
+		if (strcmp(bookdata[i].bookISNnumber, isn) == 0)
+		{
+			return i;break;
+		}
+	}
+	return -1;
+}
 
 //与已填写数据比对函数
 bool searchid(const char* id)//账号id存在性
@@ -242,8 +291,9 @@ void denglulayout()//登陆界面
 			cin.get();
 			system("cls");
 			i = index(account);
+			finalnum = true;
 			if (studentdata[i].phonenumber[0] == '\0')  firstdenglu(account,i);
-			else mainlayout();
+			else mainlayout(account,i);
 			return;
 		}
 		cout << "密码错误！剩余尝试次数: " << to_string(attempts);
@@ -258,7 +308,7 @@ void denglulayout()//登陆界面
 		rollinlayout();
 	}
 }
-
+//找回密码模块
 int index(const char* id)
 {
 	for (int i = 0; i < 100; i++) {
@@ -278,7 +328,7 @@ void firstdenglu(const char* account,const int i)
 	studentdata[i].phonenumber[j] = '\0';
 	mid("电话号码信息已补全，按任意键跳转主界面", width);
 	cin.get();    system("cls");
-	mainlayout();
+	mainlayout(account,i);
 }
 void findpassword(const char* account, const int i)
 {
@@ -433,6 +483,41 @@ void zhucelayout()//注册界面及注册账号代码输入
 }
 
 //主界面
+void mainlayout(const char *account,const int i)
+{
+	system("cls");
+	mid("欢迎进入学生管理系统主界面", width);
+	mid("主菜单", width);
+	mid("--------------------------------------", width);
+	cout << endl;
+	mid("1-图书借阅", width);
+	mid("2-借阅图书归还", width);
+	mid("3-图书馆图书借阅剩余", width);
+	mid("4-期末考试成绩提交", width);
+	mid("5-退出登录", width);
+	mid("6-补充个人信息", width);
+	cout << endl;
+	mid("--------------------------------------", width);
+	mid("请爱护图书馆书籍，借阅时注意自己的账号安全，解释权归系统管理者所有", width);
+	mid("输入数字以继续", width);
+	int controlnum;
+	cin >> controlnum;
+	mainlayoutcontrol(controlnum,account,i);
+}
+//安全模式主界面控制
+void mainlayoutcontrol(const int num)
+{
+	switch (num)
+	{
+	case 1: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
+	case 2: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
+	case 3:anybook();break;
+	case 4: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
+	case 5: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
+	case 6: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
+	}
+}
+//安全模式主界面
 void mainlayout()
 {
 	system("cls");
@@ -454,17 +539,115 @@ void mainlayout()
 	cin >> controlnum;
 	mainlayoutcontrol(controlnum);
 }
-void mainlayoutcontrol(int num)
+//主界面控制
+void mainlayoutcontrol(int num,const char *account,const int i)
 {
 	switch (num)
 	{
-	case 1:break;
-	case 2:break;
-	case 3:break;
-	case 4:break;
-	case 5: { system("cls");rollinlayout(); }break;
-	case 6:break;
+	case 1:librarygo(account, i);break;
+	case 2:libraryout(account, i);break;
+	case 3:anybook();break;
+	case 4:gradesubmit(account, i);break;
+	case 5: { system("cls");finalnum = false;rollinlayout(); }break;
+	case 6:information(account, i);break;
 	}
+}
+
+//图书馆借阅还书模块
+void newbook()
+{
+	system("cls");
+	int i;
+	{
+		mid("输入你想要创建图书的书名", width);
+		cin >> bookdata[booknum].title;
+		cout << bookdata[booknum].title;
+		mid("输入你想要添加图书的作者", width);
+		cin >> bookdata[booknum].writer;
+		cout << bookdata[booknum].writer;
+		mid("输入你想要添加图书的价格", width);
+		cin >> bookdata[booknum].pricing;
+		cout << bookdata[booknum].pricing;
+		mid("请输入你想要添加图书的出版社信息", width);
+		cin >> bookdata[booknum].publishinghouse;
+		cout << bookdata[booknum].publishinghouse;
+		mid("请输入你想要添加图书ISN编码(13位)", width);
+		cin >> bookdata[booknum].bookISNnumber;
+		cout << bookdata[booknum].bookISNnumber;
+		booknum++;
+		mid("是否继续添加图书", width);
+		mid("1-是", width);
+		mid("0-否", width);
+		cin >> i;
+	}while (i);
+}
+void librarygo(const char* account, const int i)
+{
+	system("cls");
+	mid("--------------------------------------", width);
+	cout << endl;
+	mid("1-借书", width);
+	mid("0-返回上一级", width);
+	int choose;
+	cin >> choose;
+	if (choose) 
+	{
+		anybook();
+		mid("1-借阅已有信息的书籍", width);
+		mid("2-上列表格中没有你想要的书籍？按2进入创建", width);
+		cout << endl;
+		mid("--------------------------------------", width);
+		int choose;  cin >> choose;
+		switch (choose)
+	    {
+		case 1: 
+		{
+			mid("输入你想借阅图书的ISN编号", width);
+			char isn[14];
+			for (int j = 0;j < 13;j++)
+			{
+				cin >> isn[j];
+			}
+			isn[13] = '\0';
+			int b = searchbookbyisn(isn);
+			if (b == -1) {
+				cout << "你所添加的图书不存在，请返回上一级进行添加";cin.get();
+				system("cls");
+				librarygo(account, i);
+				return;
+			}
+			else
+			{
+				bookstulink p=studentdata[i].bookstu = new bookstu;
+				for (int i = 0;i < studentdata[i].bookstulinkk;i++)
+				{
+					p = p->next;
+				}
+				p->bookindex = b;
+				studentdata[i].bookstulinkk++;
+				bookdata[b].condiction = true;
+				cout << "添加成功，按任意键返回上一级";
+				cin.get();
+				librarygo(account, i);
+				return;
+			}
+		}  break;
+		    case 2: 
+		    {
+			    newbook();
+				librarygo(account, i);
+			    break;
+		    }
+	    }
+			  return;
+	}
+	else { 
+		mainlayout(account, i); 
+	}
+}
+void libraryout(const char* account, const int i)
+{
+
 }
 
 int main()
