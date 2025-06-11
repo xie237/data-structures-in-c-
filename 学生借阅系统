@@ -570,12 +570,12 @@ void mainlayoutcontrol(const int num)
 {
 	switch (num)
 	{
-	case 1: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
-	case 2: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
+	case 1: { mid("你还未登录，只能进行借阅剩余查看操作", width);cin.get(); mainlayout(); }break;
+	case 2: { mid("你还未登录，只能进行借阅剩余查看操作", width);cin.get(); mainlayout(); }break;
 	case 3:anybook();break;
-	case 4: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
-	case 5: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
-	case 6: { mid("你还未登录，只能进行节约剩余查看操作", width);cin.get(); mainlayout(); }break;
+	case 4: { mid("你还未登录，只能进行借阅剩余查看操作", width);cin.get(); mainlayout(); }break;
+	case 5: { mid("你还未登录，只能进行借阅剩余查看操作", width);cin.get(); mainlayout(); }break;
+	case 6: { mid("你还未登录，只能进行借阅剩余查看操作", width);cin.get(); mainlayout(); }break;
 	}
 }
 //安全模式主界面
