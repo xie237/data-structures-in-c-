@@ -681,6 +681,12 @@ void librarygo(const char* account, const int i)
 					cin.ignore(); cin.get();
 					continue;  // 返回当前菜单
 				}
+				else if (bookdata[b].condiction)
+				{
+					cout << "图书已被借阅，无法再次被借阅，按任意键返回";
+					cin.ignore(); cin.get();
+					continue;
+				}
 				else {
 					// 创建新节点
 					bookstulink newNode = new bookstu;
