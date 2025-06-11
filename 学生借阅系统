@@ -6,6 +6,27 @@
 #include<iomanip>
 using namespace std;
 
+//函数声明区
+bool searchid(const char* id);
+bool searchaccount(const char* account);
+bool passwordcompare(const char* account, const char* password);
+void welcomelayout(string name);
+void rollincontrol(int num);
+void rollinlayout();
+void denglulayout();
+void rollinlayoutalready();
+void zhucepasswordon();
+void zhucelayout();
+void mainlayout(const char* account, const int i);
+int index(const char* account);
+void firstdenglu(const char* account, const int i);
+void findpassword(const char* account, const int i);
+void mainlayoutcontrol(int num, const char* account, const int i);
+void librarygo(const char* account, const int i);
+void libraryout(const char* account, const int i);
+void mainlayout();
+void mainlayoutcontrol(const int num);
+
 //此处为全局变量区域，不可随意变动!!!
 int width;//控制台宽度
 string name;
@@ -82,50 +103,92 @@ void mid(const char* text, int width)//控制台居中设置函数
 	cout << text << endl;
 }
 
-//图书馆剩余书籍信息
+//安全模式下图书馆剩余书籍信息
 void anybook()
 {
 	for (int i = 0;i < booknum;i++)
 	{
 		string tf;
-		if (bookdata[booknum].condiction == false) tf = "未借阅";
+		if (bookdata[i].condiction == false) tf = "未借阅";
 		else tf = "已借阅";
-		cout << endl << left << setw(25) << bookdata[booknum].title << setw(20) << bookdata[booknum].writer
-			<< setw(10) << bookdata[booknum].pricing << setw(15) << bookdata[booknum].bookISNnumber <<
-			setw(20) << bookdata[booknum].publishinghouse << setw(4) << tf << right << endl;
+		cout << endl << left <<i+1<<" "<< setw(25) << bookdata[i].title << setw(20) << bookdata[i].writer
+			<< setw(10) << bookdata[i].pricing << setw(15) << bookdata[i].bookISNnumber <<
+			setw(20) << bookdata[i].publishinghouse << setw(4) << tf << right << endl;
+	}
+}
+////图书馆剩余书籍信息
+void anybook(const char *account,const int i)
+{
+	for (int i = 0;i < booknum;i++)
+	{
+		string tf;
+		if (bookdata[i].condiction == false) tf = "未借阅";
+		else tf = "已借阅";
+		cout << endl << left << i + 1 << " " << setw(25) << bookdata[i].title << setw(20) << bookdata[i].writer
+			<< setw(10) << bookdata[i].pricing << setw(15) << bookdata[i].bookISNnumber <<
+			setw(20) << bookdata[i].publishinghouse << setw(4) << tf << right << endl;
 	}
 }
 //成绩提交模块
 void gradesubmit(const char *account, const int i)
 {
-
+	mid("请输入你的高数成绩", width);
+	cin >> studentdata[i].grade->math;
+	cout << endl;
+	mid("请输入你的大英成绩", width);
+	cin >> studentdata[i].grade->english;
+	cout << endl;
+	mid("请输入你的数据结构成绩", width);
+	cin >> studentdata[i].grade->datacontrol;
+	cout << endl;
+	mid("你的成绩提交完成，将有校方审核，按任意键返回上一级", width);
+	cin.get();
+	system("cls");
+	mainlayout(account, i);
 }
 //个人信息补全模块
 void information(const char* account, const int i)
 {
-
+	mid("由于登陆时已确认你的姓名，这里将会为你自动填写", width);
+	mid("1-最开始填写不对，需要修改", width);
+	mid("2-最开始填写正确，下一步", width);
+	int num;
+	cin >> num;
+	if (num == 1)
+	{
+		mid("你的姓名是", width);
+		cin >> studentdata[i].name;
+		cout << endl;
+	}
+	else
+	{
+		mid("你的年龄", width);
+		cin >> studentdata[i].age;
+		cout << endl;
+		mid("你的班级", width);
+		cin >> studentdata[i].clas;
+		cout << endl;
+		mid("你的专业", width);
+		cin >> studentdata[i].profession;
+		cout << endl;
+		mid("恭喜你，你的信息已经全部补全，按任意键返回上一级", width);
+		cin.ignore();
+		cin.get();
+		system("cls");
+		mainlayout(account, i);
+	}
 }
-
-//函数声明区
-bool searchid(const char* id);
-bool searchaccount(const char* account);
-bool passwordcompare(const char* account, const char* password);
-void welcomelayout(string name);
-void rollincontrol(int num);
-void rollinlayout();
-void denglulayout();
-void rollinlayoutalready();
-void zhucepasswordon();
-void zhucelayout();
-void mainlayout(const char* account, const int i);
-int index(const char* account);
-void firstdenglu(const char* account,const int i);
-void findpassword(const char* account, const int i);
-void mainlayoutcontrol(int num, const char* account, const int i);
-void librarygo(const char* account, const int i);
-void libraryout(const char* account, const int i);
-void mainlayout();
-void mainlayoutcontrol(const int num);
+void seeinformation(const char* account, const int i)
+{
+	cout << endl << left << setw(6) << studentdata[i].name << setw(3) << studentdata[i].age
+		<< setw(15) << studentdata[i].clas << setw(15) << studentdata[i].profession <<
+		setw(15) << studentdata[i].phonenumber << setw(12) << studentdata[i].account <<setw(15)<< studentdata[i].grade << right << endl;
+	mid("以上为你的个人信息，按任意键返回上一级", width);
+	cin.ignore();
+	cin.get();
+	system("cls");
+	mainlayout(account, i);
+}
 
 //通过isn查找图书
 int searchbookbyisn(const char* isn)
@@ -134,7 +197,7 @@ int searchbookbyisn(const char* isn)
 	{
 		if (strcmp(bookdata[i].bookISNnumber, isn) == 0)
 		{
-			return i;break;
+			return i;
 		}
 	}
 	return -1;
@@ -496,6 +559,7 @@ void mainlayout(const char *account,const int i)
 	mid("4-期末考试成绩提交", width);
 	mid("5-退出登录", width);
 	mid("6-补充个人信息", width);
+	mid("7-查看个人信息", width);
 	cout << endl;
 	mid("--------------------------------------", width);
 	mid("请爱护图书馆书籍，借阅时注意自己的账号安全，解释权归系统管理者所有", width);
@@ -546,10 +610,11 @@ void mainlayoutcontrol(int num,const char *account,const int i)
 	{
 	case 1:librarygo(account, i);break;
 	case 2:libraryout(account, i);break;
-	case 3:anybook();break;
+	case 3:anybook(account,i);break;
 	case 4:gradesubmit(account, i);break;
 	case 5: { system("cls");finalnum = false;rollinlayout(); }break;
 	case 6:information(account, i);break;
+	case 7:seeinformation(account, i);break;
 	}
 }
 
@@ -558,7 +623,7 @@ void newbook()
 {
 	system("cls");
 	int i;
-	{
+	do{
 		mid("输入你想要创建图书的书名", width);
 		cin >> bookdata[booknum].title;
 		cout << bookdata[booknum].title;
@@ -584,70 +649,158 @@ void newbook()
 void librarygo(const char* account, const int i)
 {
 	system("cls");
-	mid("--------------------------------------", width);
-	cout << endl;
-	mid("1-借书", width);
-	mid("0-返回上一级", width);
-	int choose;
-	cin >> choose;
-	if (choose) 
-	{
-		anybook();
-		mid("1-借阅已有信息的书籍", width);
-		mid("2-上列表格中没有你想要的书籍？按2进入创建", width);
-		cout << endl;
+	while (true) {  // 使用循环代替递归
 		mid("--------------------------------------", width);
-		int choose;  cin >> choose;
-		switch (choose)
-	    {
-		case 1: 
-		{
-			mid("输入你想借阅图书的ISN编号", width);
-			char isn[14];
-			for (int j = 0;j < 13;j++)
-			{
-				cin >> isn[j];
-			}
-			isn[13] = '\0';
-			int b = searchbookbyisn(isn);
-			if (b == -1) {
-				cout << "你所添加的图书不存在，请返回上一级进行添加";cin.get();
-				system("cls");
-				librarygo(account, i);
-				return;
-			}
-			else
-			{
-				bookstulink p=studentdata[i].bookstu = new bookstu;
-				for (int i = 0;i < studentdata[i].bookstulinkk;i++)
+		cout << endl;
+		mid("1-借书", width);
+		mid("0-返回上一级", width);
+		int choose;
+		cin >> choose;
+		if (choose == 1) {
+			system("cls");
+			anybook();
+			mid("1-借阅已有信息的书籍", width);
+			mid("2-上列表格中没有你想要的书籍？按2进入创建", width);
+			cout << endl;
+			mid("--------------------------------------", width);
+
+			int inner_choose;  // 重命名避免冲突
+			cin >> inner_choose;
+			if (inner_choose == 1) {
+				mid("输入你想借阅图书的ISN编号", width);
+				char isn[14];
+				for (int j = 0;j < 13;j++)
 				{
-					p = p->next;
+					cin >> isn[j];
 				}
-				p->bookindex = b;
-				studentdata[i].bookstulinkk++;
-				bookdata[b].condiction = true;
-				cout << "添加成功，按任意键返回上一级";
-				cin.get();
-				librarygo(account, i);
-				return;
+				isn[13] = '\0';
+				int b = searchbookbyisn(isn);
+				if (b == -1) {
+					cout << "图书不存在，按任意键返回";
+					cin.ignore(); cin.get();
+					continue;  // 返回当前菜单
+				}
+				else {
+					// 创建新节点
+					bookstulink newNode = new bookstu;
+					newNode->bookindex = b;
+					newNode->next = nullptr;
+
+					// 链表操作修复
+					if (studentdata[i].bookstu == nullptr) {
+						studentdata[i].bookstu = newNode;
+					}
+					else {
+						bookstulink p = studentdata[i].bookstu;
+						// 正确遍历到末尾
+						while (p->next != nullptr) {
+							p = p->next;
+						}
+						p->next = newNode;  // 追加到末尾
+					}
+					studentdata[i].bookstulinkk++;
+					bookdata[b].condiction = true;
+					cout << "添加成功! 已借书籍: ";
+					// 显示当前借阅列表
+					bookstulink p = studentdata[i].bookstu;
+					while (p != nullptr) {
+						cout << bookdata[p->bookindex].title << " | ";
+						p = p->next;
+					}
+					cout << "\n按任意键返回";
+					cin.ignore(); cin.get();
+				}
 			}
-		}  break;
-		    case 2: 
-		    {
-			    newbook();
-				librarygo(account, i);
-			    break;
-		    }
-	    }
-			  return;
-	}
-	else { 
-		mainlayout(account, i); 
+			else if (inner_choose == 2) {
+				newbook();
+			}
+		}
+		else if (choose == 0) {
+			mainlayout(account, i);
+			break;  // 退出循环
+		}
 	}
 }
 void libraryout(const char* account, const int i)
 {
-
+	mid("1-还书",width);
+	mid("2-返回上一级", width);
+	int controlnum;
+	cin >> controlnum;
+	if (controlnum == 1)
+	{
+		mid("你借阅的图书如下", width);
+		bookstulink p = studentdata[i].bookstu;
+		while (p != nullptr) {
+			string tf;
+			if (bookdata[p->bookindex].condiction == false) tf = "未借阅";
+			else tf = "已借阅";
+			cout << endl << left << i + 1 << " " << setw(25) << bookdata[p->bookindex].title << setw(20) << bookdata[p->bookindex].writer
+				<< setw(10) << bookdata[p->bookindex].pricing << setw(15) << bookdata[p->bookindex].bookISNnumber <<
+				setw(20) << bookdata[p->bookindex].publishinghouse << setw(4) << tf << right << endl;
+			p = p->next;
+		}
+		mid("输入你需要还的图书", width);
+		char isn[14];
+		for (int k = 0;k < 13;k++)
+		{
+			cin >> isn[k];
+		}
+		isn[13] = '\0';
+		int b = searchbookbyisn(isn);
+		if (b == -1)
+		{
+			mid("你输入的isn码对应的借阅书籍不存在，按任意键返回还书界面", width);
+			cin.ignore();
+			cin.get();
+			libraryout(account, i);
+			return;
+		}
+		else
+		{
+			bookdata[b].condiction = false;
+			// 从学生的借阅链表中删除该书籍
+			bookstulink current = studentdata[i].bookstu;
+			bookstulink prev = nullptr;
+			bool found = false;
+			// 遍历链表寻找要删除的书籍
+			while (current != nullptr && !found) {
+				if (current->bookindex == b) {
+					found = true;
+					// 删除节点
+					if (prev == nullptr) {
+						// 删除的是头节点
+						studentdata[i].bookstu = current->next;
+					}
+					else {
+						// 删除的是中间或尾部节点
+						prev->next = current->next;
+					}
+					delete current;
+					studentdata[i].bookstulinkk--;
+				}
+				else {
+					// 移动到下一个节点
+					prev = current;
+					current = current->next;
+				}
+			}
+			if (!found) {
+				mid("错误：该书籍不在你的借阅列表中", width);
+			}
+			else {
+				mid("还书成功，按任意键返回还书界面", width);
+			}
+			cin.ignore();
+			cin.get();
+			libraryout(account, i);
+			return;
+		}
+	}
+	else
+	{
+		mainlayout(account, i);
+	}
 }
 
 int main()
