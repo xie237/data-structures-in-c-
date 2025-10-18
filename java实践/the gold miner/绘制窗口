@@ -1,0 +1,18 @@
+package com.sxt;
+
+import javax.swing.*;//创建窗口监听鼠标键盘事件
+
+public class GameWin extends JFrame{
+   void launch(){
+       this.setVisible(true);//可见
+       this.setSize(500,500);//大小
+       this.setLocationRelativeTo(null);//居中
+       this.setTitle("黄金矿工-智腾飞迅工作室");
+
+       setDefaultCloseOperation(EXIT_ON_CLOSE);//关闭窗口
+   }
+   public static void main(String[] args){
+       GameWin gamewin=new GameWin();
+       gamewin.launch();
+   }
+}
