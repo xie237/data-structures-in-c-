@@ -1,6 +1,6 @@
-//package com.sxt;
+package com.sxt;
 
-//import javax.swing.*;//创建窗口监听鼠标键盘事件
+import javax.swing.*;//创建窗口监听鼠标键盘事件
 
 public class GameWin extends JFrame{
    void launch(){
